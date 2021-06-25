@@ -87,67 +87,71 @@ def adjustFees(number):
 sendTG(f'🤖 BOT - {BOTNAME} Started Initial Investment: ₹{INR} M/T Fees: ₹{FEES} Per Transaction Coin: {SC} Buy TimeOut: {BUYTIMEOUT} Sell TimeOut: {SELLTIMEOUT} Buy If Less Than: {BUYIFLESSTHAN} Sell If Greater Than: {SELLIFGREATERTHAN} Max Trades: {MAXTRADES}')
 
 while True:
-    if trade >= MAXTRADES:
-        sendTG("Maximum Trades Reached!")
-        sys.exit(0)
-    p = getBTCPrice()
-    sendTG(f'🤖 Bot Started With Capital = ₹ {processDecimal(INR)}')
-    sendTG(f'⏰ Current {SC} Price = ₹{p}')
-    sendTG("⌛ 📉 Waiting For Price Drop To Buy")
-    buyFlag = False
-    sellFlag = False
-    timeOut = 0
-    tradeConcluded = False
-    timedOut = False
-    buyPrice = 111.11
-    tp=111.11
-    while True and tradeConcluded == False and timedOut == False:
-        timeOut+=1
-        np = getBTCPrice()
-        if np <=  p:
-            if (p - np) >= BUYIFLESSTHAN and buyFlag == False:
-                TINR = INR
-                INR = adjustFees(INR)
-                buyFlag = True
-                buyPrice = np
-                boughtCoins = INR/np
-                sellableCoins = adjustFees(boughtCoins)
-                tp = TINR/sellableCoins
-                sendTG(f'--🚨 Price DROP -- Initial: ₹{p} Final: ₹{np} Difference: ₹{processDecimal(p-np)} Buying {SC} Sellable qty: {processDecimal(sellableCoins)} {sc}')
-                sendTG(f'🙏 Min. Profitable Target 🙏  ₹{tp} Min. Profitable Margin: ₹{tp-buyPrice}')
-                sendTG("⌛ 📈 Waiting For Target Hike")
-        if np >= buyPrice:
-            
-            if (np - buyPrice) >= max(SELLIFGREATERTHAN, tp-buyPrice) and sellFlag == False and buyFlag == True:
-                boughtCoins = adjustFees(boughtCoins)
-                sendTG(f'--🚀 Price HIKE -- Bought At: ₹{buyPrice} Now: ₹{np} Difference: ₹{processDecimal(np - buyPrice)} Selling {SC} Quantity: {processDecimal(boughtCoins)} {sc}')
-                sellFlag = True
-                sellPrice = np
-                profit = boughtCoins*np
+    try:
+        if trade >= MAXTRADES:
+            sendTG("Maximum Trades Reached!")
+            sys.exit(0)
+        p = getBTCPrice()
+        sendTG(f'🤖 Bot Started With Capital = ₹ {processDecimal(INR)}')
+        sendTG(f'⏰ Current {SC} Price = ₹{p}')
+        sendTG("⌛ 📉 Waiting For Price Drop To Buy")
+        buyFlag = False
+        sellFlag = False
+        timeOut = 0
+        tradeConcluded = False
+        timedOut = False
+        buyPrice = 111.11
+        tp=111.11
+        while True and tradeConcluded == False and timedOut == False:
+            timeOut+=1
+            np = getBTCPrice()
+            if np <=  p:
+                if (p - np) >= BUYIFLESSTHAN and buyFlag == False:
+                    TINR = INR
+                    INR = adjustFees(INR)
+                    buyFlag = True
+                    buyPrice = np
+                    boughtCoins = INR/np
+                    sellableCoins = adjustFees(boughtCoins)
+                    tp = TINR/sellableCoins
+                    sendTG(f'--🚨 Price DROP -- Initial: ₹{p} Final: ₹{np} Difference: ₹{processDecimal(p-np)} Buying {SC} Sellable qty: {processDecimal(sellableCoins)} {SC}')
+                    sendTG(f'🙏 Min. Profitable Target 🙏  ₹{tp} Min. Profitable Margin: ₹{tp-buyPrice}')
+                    sendTG("⌛ 📈 Waiting For Target Hike")
+            if np >= buyPrice:
+                
+                if (np - buyPrice) >= max(SELLIFGREATERTHAN, tp-buyPrice) and sellFlag == False and buyFlag == True:
+                    boughtCoins = adjustFees(boughtCoins)
+                    sendTG(f'--🚀 Price HIKE -- Bought At: ₹{buyPrice} Now: ₹{np} Difference: ₹{processDecimal(np - buyPrice)} Selling {SC} Quantity: {processDecimal(boughtCoins)} {SC}')
+                    sellFlag = True
+                    sellPrice = np
+                    profit = boughtCoins*np
 
-        if buyFlag == True and sellFlag == True:
-            INR = profit
-            sendTG(f'🥳 Trade Concluded! This Trade Gain = ₹{processDecimal(profit - TINR)} Capital After MT Fees = ₹{processDecimal(INR)}')
-            sendTG(f'----------🤝 Trade: {trade} ----------')
-            trade+=1
-            tradeConcluded = True
-        if timeOut > BUYTIMEOUT:
-            if buyFlag == False and sellFlag == False:
-                sendTG(f'😐 No Price Drop Observed In Past  {BUYTIMEOUT} Seconds. Trying Again.')
-                timedOut = True
-
-        if timeOut > SELLTIMEOUT:
-            if buyFlag == True:
-                cp = getBTCPrice()
-                boughtCoins = adjustFees(boughtCoins)
-                sendTG(f'😥 🚩 No Price Hike For {SELLTIMEOUT} Seconds, Sold For LOSS! Selling Price =₹{cp}  Loss Amount: ₹{INR - boughtCoins*cp}')
-                INR = (boughtCoins*cp)
-                sendTG(f'---------- 🤝Trade: {trade} ----------')
+            if buyFlag == True and sellFlag == True:
+                INR = profit
+                sendTG(f'🥳 Trade Concluded! This Trade Gain = ₹{processDecimal(profit - TINR)} Capital After MT Fees = ₹{processDecimal(INR)}')
+                sendTG(f'----------🤝 Trade: {trade} ----------')
                 trade+=1
-                timedOut = True
+                tradeConcluded = True
+            if timeOut > BUYTIMEOUT:
+                if buyFlag == False and sellFlag == False:
+                    sendTG(f'😐 No Price Drop Observed In Past  {BUYTIMEOUT} Seconds. Trying Again.')
+                    timedOut = True
 
-        time.sleep(1)
-        
+            if timeOut > SELLTIMEOUT:
+                if buyFlag == True:
+                    cp = getBTCPrice()
+                    boughtCoins = adjustFees(boughtCoins)
+                    sendTG(f'😥 🚩 No Price Hike For {SELLTIMEOUT} Seconds, Sold For LOSS! Selling Price =₹{cp}  Loss Amount: ₹{INR - boughtCoins*cp}')
+                    INR = (boughtCoins*cp)
+                    sendTG(f'---------- 🤝Trade: {trade} ----------')
+                    trade+=1
+                    timedOut = True
+
+            time.sleep(1)
+    except Exception as e:
+        sendTG(f'⚠️ {BOTNAME} Broken! Please Restart')
+        sendTG(f'❌ Error: {e}')
+
 
             
             
